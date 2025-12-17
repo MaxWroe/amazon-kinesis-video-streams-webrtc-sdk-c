@@ -213,7 +213,7 @@ PVOID sendGstreamerAudioVideo(PVOID args)
                                                       "videoconvert ! "
 
                                                       /* ENCODER: Hardware Encode, aligned with repo logic */
-                                                      "v4l2h264enc extra-controls=\"controls,video_bitrate=500000,video_gop_size=30\" ! "
+                                                      "v4l2h264enc extra-controls=\"controls,video_bitrate=1000000,video_gop_size=30\" ! "
 
                                                       /* ALIGNMENT 1: Use BASELINE profile (Matches your repo examples) */
                                                       "video/x-h264,level=(string)4,profile=baseline ! "
