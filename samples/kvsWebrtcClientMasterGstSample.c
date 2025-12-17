@@ -215,6 +215,10 @@ PVOID sendGstreamerAudioVideo(PVOID args)
                                                       /* ROTATION: Rotate 90 degrees clockwise */
                                                       "videoflip method=clockwise ! "
 
+                                                    /* 2. RE-PACK PIXELS (Crucial Fix) */
+                                                        /* Resets padding/alignment so the hardware encoder accepts the new 1232x1640 size */
+                                                        "videoconvert ! "
+
                                                       /* ENCODER: Hardware Encode, aligned with repo logic */
                                                       "v4l2h264enc extra-controls=\"controls,video_bitrate=5000000,video_gop_size=30\" ! "
 
