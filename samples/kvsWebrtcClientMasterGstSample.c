@@ -216,7 +216,8 @@ PVOID sendGstreamerAudioVideo(PVOID args)
                                                       "v4l2h264enc extra-controls=\"controls,video_bitrate=2000000,video_gop_size=30\" ! "
 
                                                       /* ALIGNMENT 1: Use BASELINE profile (Matches your repo examples) */
-                                                      "video/x-h264,level=(string)3.1,profile=constrained-baseline ! "
+                                                      "video/x-h264,level=(string)4,profile=baseline ! "
+
                                                       /* ALIGNMENT 2: Emulate 'tune=zerolatency' by forcing headers */
                                                       /* config-interval=-1 ensures headers are sent with every keyframe */
                                                       "h264parse config-interval=-1 ! "
@@ -454,9 +455,8 @@ INT32 main(INT32 argc, CHAR* argv[])
             DLOGI("[KVS GStreamer Master] Using RTSP source in GStreamer");
             if (argc < 6) {
                 DLOGI("[KVS GStreamer Master] No RTSP source URI included. Defaulting to device source");
-                DLOGI(
-                    "[KVS GStreamer Master] Usage: ./kvsWebrtcClientMasterGstSample <channel name> <cert path> audio-video rtspsrc rtsp://<rtsp uri>"
-                    "or ./kvsWebrtcClientMasterGstSample <channel name> <cert path> video-only rtspsrc <rtsp://<rtsp uri>");
+                DLOGI("[KVS GStreamer Master] Usage: ./kvsWebrtcClientMasterGstSample <channel name> <cert path> audio-video rtspsrc rtsp://<rtsp uri>"
+                      "or ./kvsWebrtcClientMasterGstSample <channel name> <cert path> video-only rtspsrc <rtsp://<rtsp uri>");
                 pSampleConfiguration->srcType = DEVICE_SOURCE;
             } else {
                 pSampleConfiguration->srcType = RTSP_SOURCE;
