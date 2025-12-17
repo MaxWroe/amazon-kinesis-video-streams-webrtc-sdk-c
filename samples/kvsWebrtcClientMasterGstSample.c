@@ -208,20 +208,18 @@ PVOID sendGstreamerAudioVideo(PVOID args)
                     break;
                 }
                 case DEVICE_SOURCE: {
-                    senderPipeline = gst_parse_launch(
-                        "libcamerasrc ! "
-                        "video/x-raw,width=1640,height=1232,framerate=30/1,format=NV12 ! "
-                        "videoconvert ! "
-                        /* Hardware Encoder: 8Mbps bitrate */
-                        "v4l2h264enc extra-controls=\"controls,video_bitrate=8000000,video_gop_size=30\" ! "
-                        /* Profile High (Matches your successful test) */
-                        "video/x-h264,level=(string)4,profile=high ! "
-                        /* Parser: Fixes the stream for WebRTC/App consumption */
-                        "h264parse ! "
-                        /* Enforce Byte-Stream format for the AppSink */
-                        "video/x-h264,stream-format=byte-stream,alignment=au ! "
-                        "appsink sync=TRUE emit-signals=TRUE name=appsink-video",
-                        &error);
+                    senderPipeline = gst_parse_launch("libcamerasrc ! "
+                                                      "video/x-raw,width=1640,height=1232,framerate=30/1,format=NV12 ! "
+                                                      "videoconvert ! "
+                                                      "v4l2h264enc extra-controls=\"controls,video_bitrate=8000000,video_gop_size=30\" ! "
+                                                      "video/x-h264,level=(string)4,profile=high ! "
+                                                      "h264parse ! "
+                                                      "video/x-h264,stream-format=byte-stream,alignment=au ! "
+                                                      /* FIX 1: Add a queue to prevent back-pressure freezes */
+                                                      "queue max-size-buffers=1 ! "
+                                                      /* FIX 2: Set sync=FALSE so it doesn't wait for the system clock */
+                                                      "appsink sync=FALSE emit-signals=TRUE name=appsink-video",
+                                                      &error);
                     break;
                 }
                 case RTSP_SOURCE: {
