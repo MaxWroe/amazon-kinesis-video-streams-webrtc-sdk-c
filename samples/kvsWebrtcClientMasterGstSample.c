@@ -212,6 +212,9 @@ PVOID sendGstreamerAudioVideo(PVOID args)
                                                       "video/x-raw,width=1640,height=1232,framerate=30/1,format=NV12 ! "
                                                       "videoconvert ! "
 
+                                                      /* ROTATION: Rotate 90 degrees clockwise */
+                                                      "videoflip method=clockwise ! "
+
                                                       /* ENCODER: Hardware Encode, aligned with repo logic */
                                                       "v4l2h264enc extra-controls=\"controls,video_bitrate=5000000,video_gop_size=30\" ! "
 
