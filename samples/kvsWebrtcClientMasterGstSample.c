@@ -209,7 +209,7 @@ PVOID sendGstreamerAudioVideo(PVOID args)
                 }
                 case DEVICE_SOURCE: {
                     senderPipeline = gst_parse_launch("libcamerasrc ! "
-                                                      "video/x-raw,width=1640,height=1232,framerate=30/1,format=NV12 ! "
+                                                      "video/x-raw,width=1600,height=1200,framerate=30/1,format=NV12 ! "
                                                       "videoconvert ! "
 
                                                       /* ENCODER: Hardware Encode, aligned with repo logic */
