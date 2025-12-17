@@ -209,11 +209,18 @@ PVOID sendGstreamerAudioVideo(PVOID args)
                 }
                 case DEVICE_SOURCE: {
                     senderPipeline = gst_parse_launch(
-                        "autovideosrc ! queue ! videoconvert ! video/x-raw,width=1280,height=720,framerate=25/1 ! "
-                        "x264enc name=sampleVideoEncoder bframes=0 speed-preset=veryfast bitrate=512 byte-stream=TRUE tune=zerolatency ! "
-                        "video/x-h264,stream-format=byte-stream,alignment=au,profile=baseline ! "
-                        " appsink sync=TRUE "
-                        "emit-signals=TRUE name=appsink-video",
+                        "libcamerasrc ! "
+                        "video/x-raw,width=1640,height=1232,framerate=30/1,format=NV12 ! "
+                        "videoconvert ! "
+                        /* Hardware Encoder: 8Mbps bitrate */
+                        "v4l2h264enc extra-controls=\"controls,video_bitrate=8000000,video_gop_size=30\" ! "
+                        /* Profile High (Matches your successful test) */
+                        "video/x-h264,level=(string)4,profile=high ! "
+                        /* Parser: Fixes the stream for WebRTC/App consumption */
+                        "h264parse ! "
+                        /* Enforce Byte-Stream format for the AppSink */
+                        "video/x-h264,stream-format=byte-stream,alignment=au ! "
+                        "appsink sync=TRUE emit-signals=TRUE name=appsink-video",
                         &error);
                     break;
                 }
