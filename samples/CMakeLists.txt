@@ -76,6 +76,12 @@ add_executable(
 target_link_libraries(kvsWebrtcClientViewer kvsWebrtcClient kvsWebrtcSignalingClient ${EXTRA_DEPS} kvsCommonLws kvspicUtils websockets)
 
 add_executable(
+  kvsWebrtcClientArloCamMaster
+  Common.c
+  kvsWebRTCClientArloCamMaster.c)
+target_link_libraries(kvsWebrtcClientArloCamMaster kvsWebrtcClient kvsWebrtcSignalingClient ${EXTRA_DEPS} ${GST_SAMPLE_LIBRARIES} kvsCommonLws kvspicUtils websockets)
+
+add_executable(
         discoverNatBehavior
         discoverNatBehavior.c)
 target_link_libraries(discoverNatBehavior kvsWebrtcClient ${EXTRA_DEPS})
@@ -106,7 +112,7 @@ if(GST_FOUND)
   )
 endif()
 
-install(TARGETS kvsWebrtcClientMaster kvsWebrtcClientViewer discoverNatBehavior
+install(TARGETS kvsWebrtcClientMaster kvsWebrtcClientViewer kvsWebrtcClientArloCamMaster discoverNatBehavior
   RUNTIME DESTINATION bin
 )
 
