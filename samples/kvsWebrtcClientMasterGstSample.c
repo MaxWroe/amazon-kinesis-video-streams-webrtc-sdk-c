@@ -208,16 +208,9 @@ PVOID sendGstreamerAudioVideo(PVOID args)
                     break;
                 }
                 case DEVICE_SOURCE: {
-                    senderPipeline = gst_parse_launch("libcamerasrc ! "
+                    senderPipeline = gst_parse_launch("libcamerasrc ! rotation=270"
                                                       "video/x-raw,width=1640,height=1232,framerate=30/1,format=NV12 ! "
                                                       "videoconvert ! "
-
-                                                      /* ROTATION: Rotate 90 degrees clockwise */
-                                                      "videoflip method=clockwise ! "
-
-                                                    /* 2. RE-PACK PIXELS (Crucial Fix) */
-                                                        /* Resets padding/alignment so the hardware encoder accepts the new 1232x1640 size */
-                                                        "videoconvert ! "
 
                                                       /* ENCODER: Hardware Encode, aligned with repo logic */
                                                       "v4l2h264enc extra-controls=\"controls,video_bitrate=5000000,video_gop_size=30\" ! "
@@ -292,7 +285,7 @@ PVOID sendGstreamerAudioVideo(PVOID args)
                 }
                 case DEVICE_SOURCE: {
                     senderPipeline = gst_parse_launch(
-                        "autovideosrc ! queue ! videoconvert ! videoflip method=clockwise ! video/x-raw,width=1280,height=720,framerate=25/1 ! "
+                        "autovideosrc ! queue ! videoconvert ! video/x-raw,width=1280,height=720,framerate=25/1 ! "
                         "x264enc name=sampleVideoEncoder bframes=0 speed-preset=veryfast bitrate=512 byte-stream=TRUE tune=zerolatency ! "
                         "video/x-h264,stream-format=byte-stream,alignment=au,profile=baseline ! appsink sync=TRUE emit-signals=TRUE "
                         "name=appsink-video autoaudiosrc ! "
