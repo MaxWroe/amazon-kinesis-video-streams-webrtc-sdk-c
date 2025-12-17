@@ -208,7 +208,7 @@ PVOID sendGstreamerAudioVideo(PVOID args)
                     break;
                 }
                 case DEVICE_SOURCE: {
-                    senderPipeline = gst_parse_launch("libcamerasrc ! rotation=270"
+                    senderPipeline = gst_parse_launch("libcamerasrc ! "
                                                       "video/x-raw,width=1640,height=1232,framerate=30/1,format=NV12 ! "
                                                       "videoconvert ! "
 
@@ -373,6 +373,7 @@ INT32 main(INT32 argc, CHAR* argv[])
     STATUS retStatus = STATUS_SUCCESS;
     PSampleConfiguration pSampleConfiguration = NULL;
     PCHAR pChannelName;
+    PCHAR pCaCertPath = NULL;
     RTC_CODEC audioCodec = RTC_CODEC_OPUS;
     RTC_CODEC videoCodec = RTC_CODEC_H264_PROFILE_42E01F_LEVEL_ASYMMETRY_ALLOWED_PACKETIZATION_MODE;
 
@@ -390,15 +391,22 @@ INT32 main(INT32 argc, CHAR* argv[])
 
     CHK_STATUS(createSampleConfiguration(pChannelName, SIGNALING_CHANNEL_ROLE_TYPE_MASTER, TRUE, TRUE, logLevel, &pSampleConfiguration));
 
-    if (argc > 3 && STRCMP(argv[3], "testsrc") == 0) {
-        if (argc > 4) {
-            if (!STRCMP(argv[4], AUDIO_CODEC_NAME_OPUS)) {
+    // If certificate path is provided as second argument, use it
+    if (argc > 2) {
+        pCaCertPath = argv[2];
+        pSampleConfiguration->pCaCertPath = pCaCertPath;
+        DLOGI("[KVS GStreamer Master] Using CA cert path from argument: %s", pCaCertPath);
+    }
+
+    if (argc > 4 && STRCMP(argv[4], "testsrc") == 0) {
+        if (argc > 5) {
+            if (!STRCMP(argv[5], AUDIO_CODEC_NAME_OPUS)) {
                 audioCodec = RTC_CODEC_OPUS;
             }
         }
 
-        if (argc > 5) {
-            if (!STRCMP(argv[5], VIDEO_CODEC_NAME_H265)) {
+        if (argc > 6) {
+            if (!STRCMP(argv[6], VIDEO_CODEC_NAME_H265)) {
                 videoCodec = RTC_CODEC_H265;
             }
         }
@@ -418,15 +426,15 @@ INT32 main(INT32 argc, CHAR* argv[])
     gst_init(&argc, &argv);
     DLOGI("[KVS Gstreamer Master] Finished initializing GStreamer and handlers");
 
-    if (argc > 2) {
-        if (STRCMP(argv[2], "video-only") == 0) {
+    if (argc > 3) {
+        if (STRCMP(argv[3], "video-only") == 0) {
             pSampleConfiguration->mediaType = SAMPLE_STREAMING_VIDEO_ONLY;
             DLOGI("[KVS Gstreamer Master] Streaming video only");
-        } else if (STRCMP(argv[2], "audio-video-storage") == 0) {
+        } else if (STRCMP(argv[3], "audio-video-storage") == 0) {
             pSampleConfiguration->mediaType = SAMPLE_STREAMING_AUDIO_VIDEO;
             pSampleConfiguration->channelInfo.useMediaStorage = TRUE;
             DLOGI("[KVS Gstreamer Master] Streaming audio and video");
-        } else if (STRCMP(argv[2], "audio-video") == 0) {
+        } else if (STRCMP(argv[3], "audio-video") == 0) {
             pSampleConfiguration->mediaType = SAMPLE_STREAMING_AUDIO_VIDEO;
             DLOGI("[KVS Gstreamer Master] Streaming audio and video");
         } else {
@@ -436,23 +444,23 @@ INT32 main(INT32 argc, CHAR* argv[])
         DLOGI("[KVS Gstreamer Master] Streaming video only");
     }
 
-    if (argc > 3) {
-        if (STRCMP(argv[3], "testsrc") == 0) {
+    if (argc > 4) {
+        if (STRCMP(argv[4], "testsrc") == 0) {
             DLOGI("[KVS GStreamer Master] Using test source in GStreamer");
             pSampleConfiguration->srcType = TEST_SOURCE;
-        } else if (STRCMP(argv[3], "devicesrc") == 0) {
+        } else if (STRCMP(argv[4], "devicesrc") == 0) {
             DLOGI("[KVS GStreamer Master] Using device source in GStreamer");
             pSampleConfiguration->srcType = DEVICE_SOURCE;
-        } else if (STRCMP(argv[3], "rtspsrc") == 0) {
+        } else if (STRCMP(argv[4], "rtspsrc") == 0) {
             DLOGI("[KVS GStreamer Master] Using RTSP source in GStreamer");
-            if (argc < 5) {
+            if (argc < 6) {
                 DLOGI("[KVS GStreamer Master] No RTSP source URI included. Defaulting to device source");
-                DLOGI("[KVS GStreamer Master] Usage: ./kvsWebrtcClientMasterGstSample <channel name> audio-video rtspsrc rtsp://<rtsp uri>"
-                      "or ./kvsWebrtcClientMasterGstSample <channel name> video-only rtspsrc <rtsp://<rtsp uri>");
+                DLOGI("[KVS GStreamer Master] Usage: ./kvsWebrtcClientMasterGstSample <channel name> <cert path> audio-video rtspsrc rtsp://<rtsp uri>"
+                      "or ./kvsWebrtcClientMasterGstSample <channel name> <cert path> video-only rtspsrc <rtsp://<rtsp uri>");
                 pSampleConfiguration->srcType = DEVICE_SOURCE;
             } else {
                 pSampleConfiguration->srcType = RTSP_SOURCE;
-                pSampleConfiguration->rtspUri = argv[4];
+                pSampleConfiguration->rtspUri = argv[5];
             }
         } else {
             DLOGI("[KVS Gstreamer Master] Unrecognized source type. Defaulting to device source in GStreamer");
